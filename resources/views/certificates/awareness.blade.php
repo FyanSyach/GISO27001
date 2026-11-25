@@ -1,0 +1,5 @@
+{{-- Dokumen PDF penghargaan awareness dengan identitas dan nomor verifikasi unik. --}}
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>Sertifikat Awareness</title>
+<style>body{font-family:DejaVu Sans,sans-serif;text-align:center;color:#16324f}main{border:5px solid #2563eb;padding:45px}h1{font-size:30px}.name{font-size:26px;font-weight:bold}footer{margin-top:35px;font-size:11px}</style></head><body><main>
+<h1>SERTIFIKAT PENYELESAIAN</h1><p>GISO27001 — Pembelajaran Kesadaran Keamanan Informasi</p><p>Diberikan kepada</p><p class="name">{{ $user->name }}</p><p>atas penyelesaian seluruh modul wajib dan kelulusan kuis awareness ISO/IEC 27001.</p><p>Divisi: {{ $user->division }}</p><p>Diterbitkan: {{ $certificate->issued_at->format('d-m-Y') }}</p><footer>Nomor verifikasi: {{ $certificate->certificate_number }}<br>Verifikasi publik: {{ route('certificate.verify', $certificate->certificate_number) }}<br>Sertifikat pembelajaran internal, bukan sertifikasi ISO organisasi.</footer>
+</main></body></html>

@@ -27,9 +27,9 @@ class LearningTest extends TestCase
         $this->post(route('modules.quiz.store', $module), ['answers' => [$quiz->id => 'B']])->assertSessionHasNoErrors();
         $this->assertSame(0, $user->fresh()->points);
         $this->post(route('modules.quiz.store', $module), ['answers' => [$quiz->id => 'A']])->assertSessionHasNoErrors();
-        $this->assertSame(100, $user->fresh()->points);
+        $this->assertSame(110, $user->fresh()->points);
         $this->post(route('modules.quiz.store', $module), ['answers' => [$quiz->id => 'A']])->assertSessionHasNoErrors();
-        $this->assertSame(100, $user->fresh()->points);
+        $this->assertSame(110, $user->fresh()->points);
         $this->assertDatabaseHas('user_progress', ['user_id' => $user->id, 'module_id' => $module->id, 'is_completed' => true, 'points_awarded' => true]);
         $this->get(route('modules.show', $next))->assertOk();
     }

@@ -89,6 +89,20 @@ Penyelesaian modul ditandai ketika kuis lulus (bukan sekadar membuka halaman ata
 
 Suite lokal: 33 test/116 assertions lulus, mencakup akses, anti-farming, dan penyembunyian kunci jawaban. Build Node 26/TypeScript berhasil. Belum dilakukan pengujian konkurensi MySQL atau pemeriksaan visual lintas perangkat. Pemutar media disediakan, tetapi bukan sistem pembuktian durasi menonton atau pelacakan progres per konten.
 
+## Fase 4 — Gamifikasi dan sertifikat
+
+Halaman `/achievements` menampilkan 50 peringkat individu teratas, total/rata-rata poin divisi (hanya akun aktif), serta progres challenge aktif. Ranking dapat diperbarui melalui tombol `Perbarui ranking` saat diperlukan; implementasi tidak bergantung pada WebSocket sehingga tetap sederhana dan kompatibel dengan deployment standar. Tautan tersedia dari katalog modul.
+
+`GamificationService` mengunci pengguna dengan `lockForUpdate`, mengatur level maksimal 10 dan mengatribusikan badge kategori poin/modul sekali. Pemanggil bertanggung jawab atas idempotensi event: kelulusan memakai `points_awarded`, streak memakai `last_active_date`, dan challenge memakai `is_completed`. Tidak tersedia endpoint publik untuk menambah poin atau mengirim progres challenge manual.
+
+Streak berdasarkan timezone aplikasi (`config/app.php`); kuis lulus dihitung sebagai aktivitas belajar, termasuk latihan hari berikutnya. Bonus 10 poin diberikan sekali per hari; jeda lebih dari satu hari mereset streak menjadi 1. Total poin pada hasil kuis masih hanya menampilkan reward modul/kuis, tidak termasuk bonus streak/challenge yang terlihat melalui leaderboard.
+
+Challenge harian membutuhkan satu modul baru, mingguan tiga modul baru, dengan reward 10/30 poin. Hanya penyelesaian pertama dalam periode aktif yang dihitung. Jalankan `php artisan db:seed --class=ChallengeSeeder` untuk periode sekarang. Scheduler harian pada `routes/console.php` menyiapkan periode berikutnya; operator wajib menjalankan `php artisan schedule:work` untuk development atau cron `schedule:run` untuk produksi.
+
+`/certificate` menghasilkan PDF privat menggunakan Dompdf, hanya untuk pengguna login yang telah menyelesaikan dan lulus seluruh modul yang ditandai `is_required`. Flag ini tersedia pada migration modul dan dapat dikelola admin pada fase panel admin. Bukti kelulusan diperiksa dari percobaan kuis, bukan hanya flag progres. Sertifikat memakai nomor UUID unik dan diunduh melalui server, bukan URL storage publik. Nomor verifikasi tercetak pada PDF dan tersedia melalui halaman publik `/certificate/verify/{certificateNumber}` dengan data minimum untuk validasi. Dokumen adalah sertifikat pembelajaran internal, bukan sertifikasi ISO organisasi. Sertifikat lama tidak diregenerasi otomatis ketika nama atau katalog berubah. File dan transaksi database tidak atomik lintas filesystem; kegagalan commit setelah penulisan berpotensi meninggalkan file orphan.
+
+Verifikasi Fase 4: 38 test/143 assertions lulus, PDF aktual berawalan `%PDF-` berhasil dibuat dalam test, build Node 26/TypeScript berhasil, dan `composer audit` tanpa advisory. Belum dilakukan stress test konkurensi MySQL, pengujian visual PDF/browser, atau pengujian runtime Dompdf di container PHP. Tidak ada commit/push otomatis.
+
 ## Batas verifikasi lingkungan
 
 PHP 8.5 dan Composer telah terpasang melalui php.new. Dependency PHP dan npm memiliki lockfile. Suite lokal Fase 2 sebelumnya lulus 29 test/86 assertions. Build Vite dan smoke test runtime Docker sudah berhasil (lihat hasil Fase 2 di atas); seluruh suite PHPUnit belum dijalankan di dalam container. Node host masih 20.5, sehingga gunakan container Node 26 untuk build.

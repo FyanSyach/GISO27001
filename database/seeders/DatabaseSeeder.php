@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function (): void {
-            $this->call([UserSeeder::class, ModuleSeeder::class, BadgeSeeder::class, LearningContentSeeder::class]);
+            $this->call([UserSeeder::class, ModuleSeeder::class, BadgeSeeder::class, LearningContentSeeder::class, ChallengeSeeder::class]);
         });
     }
 }

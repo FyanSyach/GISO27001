@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GamificationController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuizController;
@@ -20,7 +21,11 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/certificate/verify/{certificateNumber}', [GamificationController::class, 'verify'])->name('certificate.verify');
+
 Route::middleware('auth')->group(function () {
+    Route::get('/achievements', [GamificationController::class, 'index'])->name('achievements.index');
+    Route::get('/certificate', [GamificationController::class, 'certificate'])->middleware('throttle:5,1')->name('certificate.download');
     Route::get('/modules', [LearningModuleController::class, 'index'])->name('modules.index');
     Route::get('/modules/{module:slug}', [LearningModuleController::class, 'show'])->name('modules.show');
     Route::post('/modules/{module:slug}/quiz', [QuizController::class, 'store'])->middleware('throttle:10,1')->name('modules.quiz.store');

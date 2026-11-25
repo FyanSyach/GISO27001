@@ -22,6 +22,7 @@ class Module extends Model
         5 => 'passing_score',
         6 => 'points_reward',
         7 => 'is_published',
+        8 => 'is_required',
     ];
 
     /** Mengonversi atribut database ke tipe domain. */
@@ -29,6 +30,7 @@ class Module extends Model
     {
         return [
             'is_published' => 'boolean',
+            'is_required' => 'boolean',
             'order_level' => 'integer',
             'passing_score' => 'integer',
             'points_reward' => 'integer',

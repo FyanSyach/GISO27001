@@ -24,7 +24,7 @@ class ModuleSeeder extends Seeder
                 'title' => $title, 'description' => $description, 'iso_control_ref' => $reference,
                 'order_level' => $index + 1, 'passing_score' => 70, 'points_reward' => 50,
                 // Tetap draft hingga konten dan kuis dibuat serta ditinjau pada Fase 3.
-                'is_published' => false,
+                'is_published' => false, 'is_required' => true,
             ]);
         }
     }

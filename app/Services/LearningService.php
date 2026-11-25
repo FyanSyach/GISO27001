@@ -65,9 +65,12 @@ class LearningService
             }
             if ($firstPass) {
                 $progress->update(['is_completed' => true, 'points_awarded' => true, 'completed_at' => now()]);
-                $locked->points += $moduleReward + $quizReward;
-                $locked->level = min(10, intdiv($locked->points, 100) + 1);
-                $locked->save();
+                app(GamificationService::class)->grantPoints($locked, $moduleReward + $quizReward);
+                app(ChallengeService::class)->moduleCompleted($locked);
+            }
+            // Kuis sah yang lulus, termasuk latihan hari berikutnya, dihitung sebagai sesi belajar.
+            if ($passed) {
+                app(StreakTrackerService::class)->track($locked);
             }
 
             return ['module_id' => $module->id, 'score' => $score, 'passed' => $passed, 'attempt' => $number,
