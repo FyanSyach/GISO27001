@@ -111,7 +111,15 @@ Panel admin mencakup statistik total/aktif pengguna, jumlah modul dan penyelesai
 
 Ekspor `/admin/reports/excel` menghasilkan XLSX asli melalui PhpSpreadsheet, memakai tipe sel teks eksplisit agar input profil tidak dieksekusi sebagai formula. PDF laporan dibatasi 500 akun; XLSX belum memakai queue atau batas jumlah akun sehingga dataset besar memerlukan optimasi. Kedua rute dibatasi role dan rate limit. Dockerfile menambahkan GD beserta library gambar yang dibutuhkan PhpSpreadsheet; image PHP wajib di-build ulang.
 
-Pengujian memakai Pest 4 yang kompatibel dengan Laravel 13; test PHPUnit sebelumnya tetap dipertahankan. Hasil terakhir: 44 test/162 assertions lulus, mencakup kepemilikan forum, solusi lintas thread, penolakan akses admin, hashing password, XLSX asli dan PDF aktual. Build TypeScript/Vite dengan Node 26 berhasil. Pemeriksaan visual browser, uji konkurensi moderasi, build ulang image PHP/GD, dan uji ekspor pada dataset besar belum dilakukan. Dashboard masih analitik dasar, belum grafik tren; unggahan file, pencarian/filter lanjutan dan kontrol kunci thread melalui UI belum tersedia. Belum ada klaim seluruh acceptance criteria produksi telah terpenuhi.
+Pengujian memakai Pest 4 yang kompatibel dengan Laravel 13; test PHPUnit sebelumnya tetap dipertahankan. Hasil terakhir: 44 test/162 assertions lulus, mencakup kepemilikan forum, solusi lintas thread, penolakan akses admin, hashing password, XLSX asli dan PDF aktual. Build TypeScript/Vite dengan Node 26 berhasil. Build ulang image PHP/GD dan penggantian container app/Nginx berhasil. GD runtime mengonfirmasi dukungan JPEG, PNG, dan FreeType. Seluruh 44 test/162 assertions juga lulus di container PHP, termasuk endpoint XLSX (dibaca ulang dan diperiksa tipe sel teks) serta PDF aktual. Test container menggunakan SQLite in-memory, bukan pengujian integrasi MySQL. Pemeriksaan visual browser, uji konkurensi moderasi, dan uji ekspor pada dataset besar belum dilakukan. Dashboard masih analitik dasar, belum grafik tren; unggahan file, pencarian/filter lanjutan dan kontrol kunci thread melalui UI belum tersedia. Belum ada klaim seluruh acceptance criteria produksi telah terpenuhi.
+
+### Menjalankan test dalam container verifikasi
+
+Environment runtime Compose (`APP_ENV=local`) dapat mengalahkan nilai PHPUnit dan menyebabkan POST test ditolak CSRF (419). Tetapkan environment testing hanya pada proses test; jangan menonaktifkan CSRF aplikasi atau menjalankan RefreshDatabase terhadap database berisi data penting.
+
+```sh
+docker compose --env-file .env.verify -f docker-compose.yml -f docker/compose.verify.yml -p giso-verify exec -T -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: -e SESSION_DRIVER=array -e CACHE_STORE=array app php artisan test --compact
+```
 
 ## Batas verifikasi lingkungan
 
