@@ -1,0 +1,9 @@
+services:
+  app:
+    env_file:
+      - .env.verify
+  mysql:
+    volumes:
+      - mysql_verify_data:/var/lib/mysql
+volumes:
+  mysql_verify_data:
