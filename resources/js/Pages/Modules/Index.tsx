@@ -7,6 +7,7 @@ type Module = { id: number; slug: string; title: string; description: string; or
 export default function Index({ modules }: { modules: Module[] }) {
     return <AuthenticatedLayout><Head title="Modul Belajar" /><main className="mx-auto max-w-6xl px-4 py-10 dark:text-gray-100">
         <Link href={route('achievements.index')} className="inline-flex min-h-12 items-center text-blue-700 dark:text-blue-300">Pencapaian, challenge & sertifikat →</Link>
+        <Link href={route('forum.index')} className="inline-flex min-h-12 items-center text-blue-700">Forum Diskusi →</Link>
         <h1 className="text-3xl font-bold">Belajar melindungi informasi</h1>
         <p className="mt-3 text-gray-600 dark:text-gray-300">Pelajari satu langkah kecil setiap hari. Lulus kuis untuk membuka modul berikutnya.</p>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{modules.map(module => <article key={module.id} className="flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm dark:bg-gray-800">

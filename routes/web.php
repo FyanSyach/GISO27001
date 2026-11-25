@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ModuleManagementController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\ForumController;
 use App\Http\Controllers\GamificationController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\ProfileController;
@@ -34,7 +39,28 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/admin', fn () => Inertia::render('Dashboard'))
-    ->middleware(['auth', 'role:admin'])->name('admin.dashboard');
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function (): void {
+    Route::get('/', DashboardController::class)->name('dashboard');
+    Route::resource('users', UserManagementController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('modules', ModuleManagementController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::post('modules/{module}/contents', [ModuleManagementController::class, 'content'])->name('contents.store');
+    Route::delete('modules/{module}/contents/{content}', [ModuleManagementController::class, 'deleteContent'])->name('contents.destroy');
+    Route::post('modules/{module}/quizzes', [ModuleManagementController::class, 'quiz'])->name('quizzes.store');
+    Route::delete('modules/{module}/quizzes/{quiz}', [ModuleManagementController::class, 'deleteQuiz'])->name('quizzes.destroy');
+    Route::get('reports/excel', [ReportController::class, 'excel'])->middleware('throttle:5,1')->name('reports.excel');
+    Route::get('reports/pdf', [ReportController::class, 'pdf'])->middleware('throttle:5,1')->name('reports.pdf');
+});
+
+Route::middleware(['auth', 'throttle:60,1'])->prefix('forum')->name('forum.')->group(function (): void {
+    Route::get('/', [ForumController::class, 'index'])->name('index');
+    Route::post('/', [ForumController::class, 'store'])->name('store');
+    Route::get('/{thread}', [ForumController::class, 'show'])->name('show');
+    Route::patch('/{thread}', [ForumController::class, 'update'])->name('update');
+    Route::delete('/{thread}', [ForumController::class, 'destroy'])->name('destroy');
+    Route::post('/{thread}/replies', [ForumController::class, 'reply'])->name('replies.store');
+    Route::patch('/replies/{reply}', [ForumController::class, 'updateReply'])->name('replies.update');
+    Route::delete('/replies/{reply}', [ForumController::class, 'deleteReply'])->name('replies.destroy');
+    Route::post('/{thread}/solution', [ForumController::class, 'solution'])->name('solution');
+});
 
 require __DIR__.'/auth.php';

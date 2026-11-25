@@ -103,6 +103,16 @@ Challenge harian membutuhkan satu modul baru, mingguan tiga modul baru, dengan r
 
 Verifikasi Fase 4: 38 test/143 assertions lulus, PDF aktual berawalan `%PDF-` berhasil dibuat dalam test, build Node 26/TypeScript berhasil, dan `composer audit` tanpa advisory. Belum dilakukan stress test konkurensi MySQL, pengujian visual PDF/browser, atau pengujian runtime Dompdf di container PHP. Tidak ada commit/push otomatis.
 
+## Fase 5 — Forum dan admin
+
+Branch `feature/phase-5-forum-admin` menyediakan forum `/forum` (thread, balasan, penyuntingan/penghapusan milik sendiri, solusi terbaik) dan panel `/admin` khusus role admin. `ForumThreadPolicy` membatasi penyuntingan pada pemilik thread terbuka; admin dapat menghapus diskusi untuk moderasi. Solusi wajib berasal dari thread yang sama. Isi forum dirender sebagai teks, tidak menggunakan HTML mentah.
+
+Panel admin mencakup statistik total/aktif pengguna, jumlah modul dan penyelesaian; CRUD akun; CRUD metadata modul, konten mikro dan soal. Modul baru selalu draft. Publikasi membutuhkan konten dan minimal tiga soal. Konten harus dijadikan draft sebelum disunting; soal dengan riwayat percobaan tidak boleh diubah. Penghapusan modul yang sudah memiliki progres atau badge ditolak. Operator tidak boleh menghapus akun sendiri atau mencabut akses admin dirinya. Penghapusan akun lain menghapus data relasional sesuai FK: gunakan penonaktifan bila histori perlu dipertahankan.
+
+Ekspor `/admin/reports/excel` menghasilkan XLSX asli melalui PhpSpreadsheet, memakai tipe sel teks eksplisit agar input profil tidak dieksekusi sebagai formula. PDF laporan dibatasi 500 akun; XLSX belum memakai queue atau batas jumlah akun sehingga dataset besar memerlukan optimasi. Kedua rute dibatasi role dan rate limit. Dockerfile menambahkan GD beserta library gambar yang dibutuhkan PhpSpreadsheet; image PHP wajib di-build ulang.
+
+Pengujian memakai Pest 4 yang kompatibel dengan Laravel 13; test PHPUnit sebelumnya tetap dipertahankan. Hasil terakhir: 44 test/162 assertions lulus, mencakup kepemilikan forum, solusi lintas thread, penolakan akses admin, hashing password, XLSX asli dan PDF aktual. Build TypeScript/Vite dengan Node 26 berhasil. Pemeriksaan visual browser, uji konkurensi moderasi, build ulang image PHP/GD, dan uji ekspor pada dataset besar belum dilakukan. Dashboard masih analitik dasar, belum grafik tren; unggahan file, pencarian/filter lanjutan dan kontrol kunci thread melalui UI belum tersedia. Belum ada klaim seluruh acceptance criteria produksi telah terpenuhi.
+
 ## Batas verifikasi lingkungan
 
 PHP 8.5 dan Composer telah terpasang melalui php.new. Dependency PHP dan npm memiliki lockfile. Suite lokal Fase 2 sebelumnya lulus 29 test/86 assertions. Build Vite dan smoke test runtime Docker sudah berhasil (lihat hasil Fase 2 di atas); seluruh suite PHPUnit belum dijalankan di dalam container. Node host masih 20.5, sehingga gunakan container Node 26 untuk build.
