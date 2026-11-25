@@ -103,6 +103,21 @@ Challenge harian membutuhkan satu modul baru, mingguan tiga modul baru, dengan r
 
 Verifikasi Fase 4: 38 test/143 assertions lulus, PDF aktual berawalan `%PDF-` berhasil dibuat dalam test, build Node 26/TypeScript berhasil, dan `composer audit` tanpa advisory. Belum dilakukan stress test konkurensi MySQL, pengujian visual PDF/browser, atau pengujian runtime Dompdf di container PHP. Tidak ada commit/push otomatis.
 
+## Tampilan publik — landing page
+
+`/` kini menampilkan landing page GISO27001, bukan halaman sambutan bawaan Laravel. Halaman terdiri dari hero dengan pratinjau progres (ilustrasi statis), empat manfaat, alur belajar tiga langkah, ringkasan kurikulum, catatan keamanan, ajakan mendaftar, dan footer. Tombol utama menyesuaikan status sesi: pengunjung diarahkan ke login/registrasi, pengguna login langsung ke daftar modul.
+
+Catatan implementasi:
+
+- Pratinjau progres pada hero adalah ilustrasi statis, bukan data pengguna; tidak ada query tambahan pada halaman publik.
+- Halaman memakai Tailwind v4 dengan palet slate/blue/emerald, mendukung `prefers-color-scheme` gelap, tautan lewati-ke-konten, fokus terlihat, dan target sentuh minimal 44–48px.
+- Seluruh ikon berupa SVG inline sehingga tidak menambah dependensi atau permintaan jaringan.
+- `laravelVersion` dan `phpVersion` tidak lagi dikirim ke halaman publik karena tidak relevan bagi pengguna.
+- Teks menegaskan bahwa sertifikat platform adalah sertifikat pembelajaran awareness internal, bukan sertifikasi kepatuhan ISO organisasi.
+- Logo memakai gradient SVG dengan ID unik per instance (`useId`), sehingga beberapa logo pada satu halaman tidak saling menimpa referensi gradient.
+
+Verifikasi: build TypeScript/Vite dengan Node 26 berhasil, `/` merespons HTTP 200 melalui Nginx, dan 47 test/200 assertions lulus. Lighthouse pada halaman beranda memberi skor 1,00 untuk accessibility, best practices, dan SEO tanpa temuan tersisa; lebar dokumen setara viewport (tidak ada horizontal overflow). Pemeriksaan visual manual pada 360px, tablet, dan desktop 4K, serta audit dengan pembaca layar nyata belum dilakukan.
+
 ## Fase 5 — Forum dan admin
 
 Branch `feature/phase-5-forum-admin` menyediakan forum `/forum` (thread, balasan, penyuntingan/penghapusan milik sendiri, solusi terbaik) dan panel `/admin` khusus role admin. `ForumThreadPolicy` membatasi penyuntingan pada pemilik thread terbuka; admin dapat menghapus diskusi untuk moderasi. Solusi wajib berasal dari thread yang sama. Isi forum dirender sebagai teks, tidak menggunakan HTML mentah.
