@@ -77,6 +77,18 @@ Kategori badge diputuskan menjadi `points`, `module`, dan `achievement` karena P
 
 Test otomatis Fase 2 menggunakan SQLite in-memory. Verifikasi Docker pada 25 November 2026 berhasil: PHP 8.5.13, MySQL 8.4.13, Node 26.13.1; seluruh migration diterapkan, seed dua kali tetap menghasilkan 11 pengguna, 5 modul, dan 3 badge. Redis merespons PONG; Nginx mengembalikan HTTP 200 untuk `/`, `/login`, dan `/up`. Build produksi frontend beserta TypeScript berhasil. Ini smoke test infrastruktur, bukan pengujian end-to-end login atau seluruh constraint MySQL. Branch kerja: `feature/phase-2-database-seeders`; penggabungan ke `develop`/`main` mengikuti PR dan persetujuan reviewer sesuai PRD.
 
+## Fase 3 — Pembelajaran dan kuis
+
+Branch `feature/phase-3-learning-quizzes` menyediakan `/modules` dan `/modules/{slug}` untuk pengguna login. Modul terbit diurutkan berdasarkan `order_level`; seluruh modul terbit sebelumnya wajib selesai. Modul draft tidak dapat dibuka dengan URL langsung.
+
+Konten teks/studi kasus dirender sebagai teks (bukan HTML mentah), video memakai pemutar HTML5 dengan subtitle VTT, dan infografis memakai gambar responsif. URL media hanya menerima HTTP(S) atau path lokal. Media video/infografis tidak disertakan dalam seed; gunakan media milik organisasi yang telah ditinjau.
+
+`LearningContentSeeder` menambahkan dua konten dan tiga soal contoh pada setiap modul dasar tanpa mengubah status draft. Materi contoh bersifat umum, belum menggantikan kurasi modul spesifik oleh pemilik konten. Jalankan `php artisan db:seed --class=LearningContentSeeder` setelah master modul tersedia. Publikasikan hanya setelah isi dan jawaban diperiksa operator; UI pengelolaan konten ada pada Fase 5.
+
+Penyelesaian modul ditandai ketika kuis lulus (bukan sekadar membuka halaman atau klaim durasi menonton). Jawaban harus tepat mencakup seluruh pertanyaan modul, dengan opsi valid. Skor dihitung server menggunakan persentase jawaban benar, dibulatkan ke bawah. Pada kelulusan pertama diberikan reward modul dan reward kuis proporsional skor (10–50); semua percobaan setelah lulus adalah latihan tanpa reward. Satu transaksi mengunci record pengguna, menyimpan percobaan, memperbarui progres dan poin/level. Reward kuis total dicatat di baris jawaban pertama agar agregasi `points_earned` tidak menggandakan total. Ini fondasi sementara; integrasi badge/streak dan penyatuan reward pada GamificationService masuk Fase 4.
+
+Suite lokal: 33 test/116 assertions lulus, mencakup akses, anti-farming, dan penyembunyian kunci jawaban. Build Node 26/TypeScript berhasil. Belum dilakukan pengujian konkurensi MySQL atau pemeriksaan visual lintas perangkat. Pemutar media disediakan, tetapi bukan sistem pembuktian durasi menonton atau pelacakan progres per konten.
+
 ## Batas verifikasi lingkungan
 
 PHP 8.5 dan Composer telah terpasang melalui php.new. Dependency PHP dan npm memiliki lockfile. Suite lokal Fase 2 sebelumnya lulus 29 test/86 assertions. Build Vite dan smoke test runtime Docker sudah berhasil (lihat hasil Fase 2 di atas); seluruh suite PHPUnit belum dijalankan di dalam container. Node host masih 20.5, sehingga gunakan container Node 26 untuk build.
